@@ -7,7 +7,7 @@ use strict;
 #use Encode;
 use utf8;
 use Tweet;
-
+use feature qw( say );
 
 my $twitter = Tweet->new();
 $twitter->init( { 'pit_twitter' => 'twitter.toshi0104',
@@ -15,9 +15,14 @@ $twitter->init( { 'pit_twitter' => 'twitter.toshi0104',
 								}
 							);
 
-my $message = 'めし',
+my $message = '暑い',
 my $url = 'https://twitter.com/#!/toshi0104';
 #my $url = '';
 $twitter->post_tweet($message, $url);
+if ($twitter->is_success){
+	say 'post_succeeded';
+}else{
+	say $twitter->is_error;
+}
 
 

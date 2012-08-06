@@ -35,6 +35,10 @@ has 'is_success' => (
 	is => 'rw',
 );
 
+has 'is_error' => (
+	isa => 'Str' ,
+	is => 'rw',
+);
 
 __PACKAGE__->meta->make_immutable;
 no Moose;
@@ -136,8 +140,11 @@ sub post_tweet {
 		eval { $self->{twitter}->update($post_tweet)};
 
 		if ($@) {
-		warn "uppdate failed because: $@\n" ;
+		my $error =  $@;
+		warn "uppdate failed because: $error\n" ;
+#		my $error = \$@;
 		$self->is_success(0);
+		$self->{is_error} = $error;
 		return $self;
 		}else{
 		say 'post succeeded';
