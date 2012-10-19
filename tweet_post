@@ -10,14 +10,15 @@ use Tweet;
 use feature qw( say );
 
 my $twitter = Tweet->new();
-$twitter->init( { 'pit_twitter' => 'twitter.toshi0104',
+$twitter->init( { 'pit_twitter' => 'twitter.toshi0104.tweet.pm',
 									'pit_bitly'		=> 'bit.ly',
 								}
 							);
 
-my $message = '暑い',
-my $url = 'https://twitter.com/#!/toshi0104';
-#my $url = '';
+my $message = 'やばいっしょ';
+#my $url = 'https://twitter.com/#!/toshi0104';
+#my $url = 'https://github.com/azwad/Tweet';
+my $url = '';
 $twitter->post_tweet($message, $url);
 if ($twitter->is_success){
 	say 'post_succeeded';

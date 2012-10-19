@@ -126,8 +126,15 @@ sub compose_tweet {
 			$post_text = substr($post_text, 0, $maxlength -3 );
 		}
 
-		my $post_tweet = $post_text.".. ".$link;
-		
+		my $post_tweet;
+
+		if (defined $link) {
+			$post_tweet = $post_text.".. ".$link;
+		}else{
+			$post_tweet = $post_text;
+		}			
+	
+#		my $post_tweet = $post_text.".. ".$link;
 		return $post_tweet;
 }
 
