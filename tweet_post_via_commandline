@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+#use lib qw(/home/toshi/perl/lib);
+use strict;
+use warnings;
+use Encode qw/decode/;
+use utf8;
+use Tweet;
+use feature qw( say );
+
+my $message = join(' ',@ARGV);
+$message = decode('UTF-8', $message);
+$message =~ s/(http.+$)//;
+my $url = $1 || undef;
+
+my $twitter = Tweet->new();
+$twitter->init( { 'pit_twitter' => 'twitter.toshi0104.tweet.pm',
+									'pit_bitly'		=> 'bit.ly',
+								}
+							);
+
+
+$twitter->post_tweet($message, $url);
+if ($twitter->is_success){
+	say 'post_succeeded';
+}else{
+	say $twitter->is_error;
+}
+
+
