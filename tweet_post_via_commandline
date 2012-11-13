@@ -1,29 +1,152 @@
 #!/usr/bin/perl
-#use lib qw(/home/toshi/perl/lib);
 use strict;
 use warnings;
-use Encode qw/decode/;
-use utf8;
-use Tweet;
 use feature qw( say );
+use DB_File;
+use FindBin;
+use Encode qw/decode encode/;
+use utf8;
+use lib qw(/home/toshi/perl/lib);
+use Tweet;
 
-my $message = join(' ',@ARGV);
-$message = decode('UTF-8', $message);
-$message =~ s/(http.+$)//;
-my $url = $1 || undef;
+&show_usage unless @ARGV;
 
-my $twitter = Tweet->new();
-$twitter->init( { 'pit_twitter' => 'twitter.toshi0104.tweet.pm',
+my %account_reg;
+
+my $db_name = 'account_db';
+my $account_db = $FindBin::Bin .'/'.$db_name;
+dbmopen(%account_reg,$account_db,0666);
+
+my $first_arg = $ARGV[0];
+my $account = $account_reg{'last_login_account'};
+say "last login as $account" if defined $account;
+
+if ($first_arg =~ /^\w{1,4}\b/){
+	say "are you sure? (y/n)?";
+	while (1){
+		my $ans = <STDIN>;
+		chomp( $ans );
+		if ($ans eq 'y'){
+			last;
+		}elsif($ans eq 'n'){
+			die 'you are smart!';
+		}else{
+			say "type (y or n)";
+			next;
+		}
+	}
+}
+
+
+if ($first_arg =~ /^-([a-zA-Z])\b/){
+	$first_arg = $1;
+
+	if (!$ARGV[1]){
+		if ($first_arg eq 'H'){
+			&show_alias();
+		}elsif(exists $account_reg{$first_arg}){
+			&change_account($first_arg);
+		}else{
+			&show_usage();
+		}
+ 	}elsif(!$ARGV[2]){
+		if ($first_arg eq 'H'){
+			&show_alias();
+		}elsif(exists $account_reg{$first_arg}){
+			&change_account($first_arg);
+			$account = $account_reg{'last_login_account'};
+			&post($account, @ARGV);
+		}else{
+			&show_usage;
+		}
+	}elsif(!$ARGV[3]){
+		if ($first_arg eq 'H'){
+			&show_alias();
+		}elsif ($first_arg eq 'P'){
+			&regist_alias($ARGV[1],$ARGV[2]);
+		}elsif(exists $account_reg{$first_arg}){
+			&change_account($first_arg);
+			$account = $account_reg{'last_login_account'};
+			&post($account,@ARGV);
+		}else{
+			&show_usage();
+		}
+	}else{
+		if ($first_arg eq 'H'){
+			&show_usage();
+		}elsif(exists $account_reg{$first_arg}){
+			&change_account($first_arg);
+			$account = $account_reg{'last_login_account'};
+			&post($account,@ARGV);
+		}else{
+			&show_usage();
+		}
+	}
+}else{
+	&show_usage unless $account;
+	&post($account,@ARGV);
+}
+dbmclose(%account_reg);
+
+
+
+sub post{
+	my $account = shift;
+	my $message = join(' ', @_);
+	$message = decode('UTF-8', $message);
+	$message =~ s/^-\w?\b\s?//;
+	$message =~ s/(http.+$)//;
+	my $url = $1 || undef;
+	say 'message is ' . encode('UTF-8',$message);
+	say "account is $account";
+	my $twitter = Tweet->new();
+	$twitter->init( { 'pit_twitter' => $account,
 									'pit_bitly'		=> 'bit.ly',
 								}
 							);
-
-
-$twitter->post_tweet($message, $url);
-if ($twitter->is_success){
+	$twitter->post_tweet($message, $url);
+	if ($twitter->is_success){
 	say 'post_succeeded';
-}else{
-	say $twitter->is_error;
+	}else{
+		say $twitter->is_error;
+	}
 }
 
+sub change_account{
+	my $alias = shift;
+	my $pit_account = $account_reg{$alias};
+	$account_reg{'last_login_account'} = $pit_account;
+	say "change account $pit_account";
+}
+
+
+sub regist_alias{
+	my $alias = shift;
+	if ($alias !~ /^[A-Z]\b/){
+		die 'You can use  one capital alphabet as an alias';
+	} 
+	my $pit_account = shift;
+	say $alias;
+	say $pit_account;
+	$account_reg{$alias} = $pit_account;
+	$account_reg{'last_login_account'} = $pit_account;
+	say 'registed!';
+}
+
+
+sub show_alias {
+	print "registed alias and last login name\n";
+	foreach (keys (%account_reg)){
+		print " $_ => $account_reg{$_}\n";
+	}
+}
+
+sub show_usage{
+	print "'-P' and '-H' are preserved\n";
+	print "'-P' Regist acccount alias for your Config_pit Name\n";
+	print "usage '-P  account_alias(A-Z) pit_account_name'\n";
+	print "ex) #tweet_post_via_commandline.pl -P T toshi0104.pit\n";
+	print "'-H' shows registed account alias and last login name\n";
+	die;
+}		
 
