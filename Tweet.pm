@@ -57,7 +57,7 @@ sub initialize_twitter {
 		);
 
 		my %opt = (
-			traits   => ['API::REST', 'OAuth'],
+			traits   => ['API::RESTv1_1', 'OAuth'],
 		);
 		$opt{access_token} = $self->config_twitter->{access_token};
 		$opt{access_token_secret} = $self->config_twitter->{access_token_secret};
