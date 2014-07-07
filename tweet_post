@@ -1,23 +1,16 @@
 #!/usr/bin/perl
-#use lib qw(/home/toshi/perl/lib);
 use strict;
-#use Data::Dumper;
-#use TumblrDashboard;
-#use YAML;
-#use Encode;
 use utf8;
 use Tweet;
 use feature qw( say );
 
 my $twitter = Tweet->new();
-$twitter->init( { 'pit_twitter' => 'twitter.toshi0104.tweet.pm',
+$twitter->init( { 'pit_twitter' => 'twitter.ForeignNewsFeeds',
 									'pit_bitly'		=> 'bit.ly',
 								}
 							);
 
 my $message = 'やばいっしょ';
-#my $url = 'https://twitter.com/#!/toshi0104';
-#my $url = 'https://github.com/azwad/Tweet';
 my $url = '';
 $twitter->post_tweet($message, $url);
 if ($twitter->is_success){

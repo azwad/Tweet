@@ -2,7 +2,6 @@ package Tweet;
 use strict;
 use utf8;
 use feature 'say';
-#use Encode qw( encode_utf8 decode_utf8 );
 use Net::Twitter;
 use Time::HiRes qw(sleep);
 use LWP::UserAgent;
@@ -61,7 +60,7 @@ sub initialize_twitter {
 		);
 		$opt{access_token} = $self->config_twitter->{access_token};
 		$opt{access_token_secret} = $self->config_twitter->{access_token_secret};
- 
+		$opt{ssl} = 1; 
 
 		for my $key (qw/apihost apiurl apirealm consumer_key consumer_secret/) {
 			$opt{$key} = $self->config_twitter->{$key} if $self->config_twitter->{$key};
@@ -120,7 +119,7 @@ sub compose_tweet {
 		my $length_post_text = length($post_text);
 #		say $length_post_text;
 
-		my $maxlength = 138 - $length_link;
+		my $maxlength = 136 - $length_link;
 
 		if ($length_post_text > $maxlength) {
 			$post_text = substr($post_text, 0, $maxlength -3 );
@@ -134,7 +133,6 @@ sub compose_tweet {
 			$post_tweet = $post_text;
 		}			
 	
-#		my $post_tweet = $post_text.".. ".$link;
 		return $post_tweet;
 }
 
@@ -149,7 +147,6 @@ sub post_tweet {
 		if ($@) {
 		my $error =  $@;
 		warn "uppdate failed because: $error\n" ;
-#		my $error = \$@;
 		$self->is_success(0);
 		$self->{is_error} = $error;
 		return $self;

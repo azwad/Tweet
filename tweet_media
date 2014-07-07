@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+use strict;
+use utf8;
+use Tweet::PostMedia;
+use feature qw( say );
+
+my $twitter = PostMedia->new();
+$twitter->init( { 'pit_twitter' => 'twitter.liquige-bot',
+									'pit_bitly'		=> 'bit.ly',
+								}
+							);
+
+my $message = 'やばいっしょ';
+my $url = 'http://liquige.tumblr.com';
+my $file = 'test1.jpg';
+my $filename = "test";
+my $media = [$file, $filename];
+
+
+$twitter->post_media($message, $url, $media);
+if ($twitter->is_success){
+	say 'post_succeeded';
+}else{
+	say $twitter->is_error;
+}
+
+
